@@ -27,23 +27,15 @@ def main():
     from numpy import sqrt
 
     figure()
-
-    plot(e.l,e.ein.min,"k-",alpha=0.3)
-    plot(e.l,e.ein.max,"k-",alpha=0.3)
-    errorbar(e.l,e.ein.mean,yerr=sqrt(e.ein.var),fmt='.')
-
-    plot(e.l,e.ein_rot.min,"k-",alpha=0.3)
-    plot(e.l,e.ein_rot.max,"k-",alpha=0.3)
-    errorbar(e.l,e.ein_rot.mean,yerr=sqrt(e.ein_rot.var),fmt='.')
+    e.plot('en',label=r"$\left<u\right>$")
 
     figure()
-    plot(e.l,e.ein2.min,"k-",alpha=0.3)
-    plot(e.l,e.ein2.max,"k-",alpha=0.3)
-    errorbar(e.l,e.ein2.mean,yerr=sqrt(e.ein2.var),fmt='.')
+    e.plot('ein')
+    e.plot('ein_rot',label=r"$\left< H\right>$")
 
-    plot(e.l,e.ein_rot2.min,"k-",alpha=0.3)
-    plot(e.l,e.ein_rot2.max,"k-",alpha=0.3)
-    errorbar(e.l,e.ein_rot2.mean,yerr=sqrt(e.ein_rot2.var),fmt='.')
+    figure()
+    e.plot('ein2')
+    e.plot('ein_rot2')
 
     show()
 

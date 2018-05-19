@@ -60,8 +60,7 @@ class einstein:
         """
         from numpy import log
         from numpy.polynomial.legendre import leggauss
-        a=log(self.c)
-        b=log(self.lmax)
+        a,b=log(self.c),log(self.lmax)
         scale=b-a
         t=0.0
         y=getattr(self,attr)
@@ -93,3 +92,14 @@ class einstein:
         Energy contribution
         """
         return -self.beta*self.energy
+
+    def plot(self,attr,label=r"$\left<\lambda H\right>$"):
+        from matplotlib.pyplot import plot,semilogx,figure,xlabel,ylabel,subplots_adjust,errorbar
+        from numpy import sqrt
+        y=getattr(self,attr)
+        semilogx(self.l,y.min,"k-",alpha=0.2,markersize=4,linewidth=1)
+        semilogx(self.l,y.max,"k-",alpha=0.2,markersize=4,linewidth=1)
+        errorbar(self.l,y.mean,yerr=sqrt(y.var),fmt='.',markersize=3,alpha=0.5)
+        xlabel(r"\lambda")
+        ylabel(label)
+        subplots_adjust(left=0.19,bottom=0.18)
