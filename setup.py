@@ -5,5 +5,6 @@ setup(name='myutils',
         description='utilities',
         author='Zdenek Preisler',
         author_email='z.preisler@gmail.com',
-        packages=['myutils']
+        packages=['myutils','myutils.einstein'],
+        scripts=['scripts/fe_einstein_solid.py']
         )
