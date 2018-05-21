@@ -10,22 +10,34 @@ def main():
     files=p.parse_args().files
     e=einstein(files)
 
-    F_trans=e.gauss_integrate('trans')
-    F_rot=e.gauss_integrate('rot')
+    fe_trans=e.gauss_integrate('trans')
+    fe_rot=e.gauss_integrate('rot')
 
-    F_einstein=e.einstein_solid_fe()
-    F_id_rot=e.rot_fe()
-    F_energy=e.energy_fe()
+    fe_einstein=e.einstein_solid_fe()
+    fe_id_rot=e.rot_fe()
+    fe_energy=e.energy_fe()
 
-    f="F_trans %.3lf\nF_rot %.3lf\nF_einstein %.3lf\nF_id_rot %.3lf\nF_energy %.3lf\n"%(F_trans,F_rot,F_einstein,F_id_rot,F_energy)
+
+    fe_all=fe_trans+fe_rot+fe_einstein+fe_id_rot+fe_energy
+    savetxt("fe.out",(e.beta,fe_all))
+
+    f="""
+    Einstein solid free energy calculation
+    ######################################
+
+    translational free energy:  % .3lf
+    rotational free energy:     % .3lf
+    Einstein solid free energy: % .3lf
+    reference rotational fe:    % .3lf
+    energy contribution:        % .3lf
+                                -------    
+    beta: %.3lf
+    beta f:                     % .3lf
+    """%(fe_trans,fe_rot,fe_einstein,fe_id_rot,fe_energy,e.beta,fe_all)
+
     print(f)
-    F_all=F_trans+F_rot+F_einstein+F_id_rot+F_energy
-    print("beta F_all %.3lf %.3lf\n"%(e.beta,F_all))
-    savetxt("fe.out",(e.beta,F_all))
 
     from matplotlib.pyplot import show,plot,errorbar,figure
-    from numpy import sqrt
-
     figure()
     e.plot('en',label=r"$\left<u\right>$")
 
