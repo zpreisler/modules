@@ -37,17 +37,22 @@ def main():
 
     print(f)
 
-    from matplotlib.pyplot import show,plot,errorbar,figure
+    from matplotlib.pyplot import show,plot,errorbar,figure,savefig
+
     figure()
     e.plot('en',label=r"$\left<u\right>$")
 
     figure()
     e.plot('ein')
     e.plot('ein_rot',label=r"$\left< H\right>$")
+    savefig("ein.pdf")
+    savefig("ein.png")
 
     figure()
     e.plot('ein2')
     e.plot('ein_rot2')
+    savefig("ein2.pdf")
+    savefig("ein2.png")
 
     show()
 
