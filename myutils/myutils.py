@@ -49,7 +49,7 @@ class configuration():
     """
     Configuration class
     """
-    def __init__(self,files):
+    def __init__(self,files,delimiter=':'):
         """
         Initialize dictionary
         """
@@ -59,8 +59,9 @@ class configuration():
             try:
                 for line in open(name,"r"):
                     t=line.split('#',1)[0]
-                    s=t.find(':')
+                    s=t.find(delimiter)
                     a,b=line[:s],line[s+1:]
+                    print(s,a)
                     t=b.split()
                     if s is not -1:
                         d[a]=t
