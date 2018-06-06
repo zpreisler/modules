@@ -21,20 +21,20 @@ class einstein:
     Frenkel-Ladd free energy calculation
     """
     def __init__(self,files):
-        from numpy import array
+        from numpy import array,prod
         self.conf=configuration(files)
         self.input=configuration(['frenkel-ladd_gauss.input'])
 
-        self.c=float(self.input.get_values('c')[0])
-        self.lmax=float(self.input.get_values('lmax')[0])
-        self.n=int(self.input.get_values('n')[0])
+        self.c=float(*self.input.get_values('c')[0])
+        self.lmax=float(*self.input.get_values('lmax')[0])
+        self.n=int(*self.input.get_values('n')[0])
 
         self.conf.data('.en')
         self.conf.data('.ein')
         self.conf.data('.ein_rot')
     
         a,b=self.conf.get_all_pairs('lambda','.en') 
-        self.l=array([float(x) for x in a])
+        self.l=array([float(x[0]) for x in a])
         self.en=data(b)
 
         a,b=self.conf.get_all_pairs('lambda','.ein') 
@@ -48,10 +48,10 @@ class einstein:
         self.trans=self.ein2.mean
         self.rot=self.ein_rot2.mean
 
-        self.N=float(self.conf.get_values('specie')[0])
-        self.beta=float(self.conf.get_values('epsilon')[0])
-        b=self.conf.get_values('box')[:2]
-        self.V=float(b[0])*float(b[1])
+        self.N=float(*self.conf.get_values('specie')[0])
+        self.beta=float(*self.conf.get_values('epsilon')[0])
+        b=array(self.conf.get_values('box'),dtype='float64')[0]
+        self.V=b[0]*b[1]
         self.energy=self.en.mean.mean()
 
     def gauss_integrate(self,attr):
@@ -97,6 +97,7 @@ class einstein:
         from matplotlib.pyplot import plot,semilogx,figure,xlabel,ylabel,subplots_adjust,errorbar
         from numpy import sqrt
         y=getattr(self,attr)
+
         semilogx(self.l,y.min,"k-",alpha=0.2,markersize=4,linewidth=1)
         semilogx(self.l,y.max,"k-",alpha=0.2,markersize=4,linewidth=1)
         errorbar(self.l,y.mean,yerr=sqrt(y.var),fmt='.',markersize=3,alpha=0.5)

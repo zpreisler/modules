@@ -3,10 +3,13 @@ class data:
     """
     Data class
     """
-    def __init__(self,name):
-        from numpy import fromfile
+    def __init__(self,name,binary=True):
+        from numpy import fromfile,loadtxt
         try:
-            self.data=fromfile(name,dtype='float64')
+            if binary is True:
+                self.data=fromfile(name,dtype='float64')
+            else:
+                self.data=loadtxt(name)
         except FileNotFoundError:
             print('File "%s" not found'%name)
             self.data=[]
@@ -60,8 +63,9 @@ class configuration():
                 for line in open(name,"r"):
                     t=line.split('#',1)[0]
                     s=t.find(delimiter)
+                    if s is -1:
+                        s=t.find(' ')
                     a,b=line[:s],line[s+1:]
-                    print(s,a)
                     t=b.split()
                     if s is not -1:
                         d[a]=t
@@ -78,7 +82,9 @@ class configuration():
 
     def __get_values(self,key,value,l):
         if isinstance(value,dict):
-            l+=value.get(key,[])
+            k=value.get(key,None)
+            if k is not None:
+                l+=[value.get(key,None)]
             for k,v in value.items():
                 self.__get_values(key,v,l)
 
@@ -92,13 +98,13 @@ class configuration():
 
     @staticmethod
     def order_list(l,f=float):
-        return sorted(l,key=lambda x: f(x))
+        return sorted(l,key=lambda x: f(x[0]))
 
     def __get_pair(self,d,key,hole,value):
         if isinstance(d,dict):
             v=d.get(key)
             if v:
-                if v == [value]:
+                if v == value:
                     yield d.get(hole)
             for k,v in d.items():
                 for x in self.__get_pair(v,key,hole,value):
@@ -129,3 +135,11 @@ class configuration():
         for d in self.conf.values():
             name=''.join(d.get('name')+[c])
             d[c]=data(name)
+
+    def data_key(self,c,binary=False):
+        """
+        Loads data using self path
+        """
+        for d,b in self.conf.items():
+            name=''.join([d[:d.rfind('/')+1]]+[c])
+            b[c]=data(name,binary=binary)
