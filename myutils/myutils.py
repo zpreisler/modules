@@ -88,17 +88,19 @@ class configuration():
             for k,v in value.items():
                 self.__get_values(key,v,l)
 
-    def get_values(self,key):
+    def get_values(self,key,d=None):
         """
         Get list of key values
         """
         w=[]
-        self.__get_values(key,self.conf,w)
+        if d is None:
+            d=self.conf
+        self.__get_values(key,d,w)
         return w
 
     @staticmethod
-    def order_list(l,f=float):
-        return sorted(l,key=lambda x: f(x[0]))
+    def order_list(l,key):
+        return sorted(l,key=key)
 
     def __get_pair(self,d,key,hole,value):
         if isinstance(d,dict):
@@ -110,21 +112,40 @@ class configuration():
                 for x in self.__get_pair(v,key,hole,value):
                     yield x
 
-    def get_pair(self,key,hole,value):
+    def get_pair(self,d,key,hole,value):
         """
         Get pairs for two keys and a value
         """
-        return [i for i in self.__get_pair(self.conf,key,hole,value)]
+        w=[]
+        for i in self.__get_pair(d,key,hole,value):
+            w+=[i]
+        return w
 
-    def get_all_pairs(self,key,hole):
+    def filter_dict(self,d,filter_dict):
+        """
+        Filter dictionary // FIXME generalization for higher order nested lists
+        """
+        w={}
+        for k,v in d.items():
+            if filter_dict.items() <= v.items():
+                w[k]=v
+        return w
+
+    def get_all_pairs(self,key,hole,sorted_key=lambda x: float(x[0]),filter_dict=None):
         """
         Get ordered pairs for two corresponding keys
         """
-        l=self.get_values(key)
-        l=self.order_list(l)
+        if filter_dict:
+            d=self.filter_dict(self.conf,filter_dict)
+        else:
+            d=self.conf
+
+        l=self.get_values(key,d=d)
+        l=self.order_list(l,key=sorted_key)
+
         w=[]
         for v in l:
-            w+=self.get_pair(key,hole,v)
+            w+=self.get_pair(d,key,hole,v)
         return l,w
 
     def data(self,c):
