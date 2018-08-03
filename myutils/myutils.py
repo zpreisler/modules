@@ -74,12 +74,6 @@ class configuration():
                 print('File "%s" not found'%name)
                 pass
 
-    def __str__(self):
-        """
-        Print configurations
-        """
-        return self.conf
-
     def __get_values(self,key,value,l):
         if isinstance(value,dict):
             k=value.get(key,None)
