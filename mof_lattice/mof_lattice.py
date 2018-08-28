@@ -1,6 +1,6 @@
 class MOF_lattice:
     """
-    The discretization used for the finite difference.
+    MOF class
     """
     del_k_m=0.0001
     del_k_s=0.0001
@@ -61,12 +61,17 @@ class MOF_lattice:
         """
         return sum(self.loading_species(mu,kT))
 
-    def free_energy(self, mu, kT):
+    def get_loading(self,mu_list,temp_list):
         """
-        Returns F/KT - Dimensionless
+        Returns the loading for given chemical potentials and reduced temperatures.
         """
-        K_s,K_m,K_t=get_weights(mu,kT)
-        return kT*self.N_sys*self.logpartition_function(K_s,K_m,K_t,self.N_sys)
+        return [self.loading(mu,temp)for mu,temp in zip(mu_list,temp_list)]
+
+    def free_energy(self,mu,kT):
+        """
+        F/KT - Dimensionless
+        """
+        return kT*self.N_sys*self.logpartition_function(*get_weights(mu,kT)+(self.N_sys,))
 
     def hessian(self,mu,kT):
         from numpy import zeros
@@ -92,17 +97,23 @@ class MOF_lattice:
         return hess_mat
 
     def free_energy_inf_app(self,mu,kT):
+        from numpy import log
         """
-        Output is F/NkT- infinite system approumation
+        F/NkT -- infinite system approximation
         """
         rho_s,rho_m,rho_t=self.loading_species(mu,kT)
         rho_t2=0.5*rho_t
-        fe = (-(1.0-rho_m-rho_t2)*math.log(1.0-rho_m-rho_t2)) - ((rho_m+rho_t2)*math.log(rho_m + rho_t2)) + (rho_s*math.log(rho_s)) + (rho_m*math.log(rho_m)) + (rho_t*math.log(rho_t2)) + (1.0-rho_s-rho_m-rho_t)*math.log(1.0-rho_s-rho_m-rho_t)
-
+        fe=(
+                (-(1.0-rho_m-rho_t2)*log(1.0-rho_m-rho_t2))-
+                ((rho_m+rho_t2)*log(rho_m + rho_t2))+
+                (rho_s*log(rho_s))+
+                (rho_m*log(rho_m))+
+                (rho_t*math.log(rho_t2))+
+                (1.0-rho_s-rho_m-rho_t)*log(1.0-rho_s-rho_m-rho_t))
         return fe
     
     def chain_length_dist(self,mu,kT):
-        from numpy import zeros,log,exp
+        from numpy import zeros,log,exp,arange
         """
         Output is l, r(l) where r(l) is the probability of finding a chain of length l
         """
@@ -112,12 +123,12 @@ class MOF_lattice:
         rl=zeros(self.N_sys/2)
         rl=[(rho_t/(rho_t+(2.0*rho_m)))*exp(-(li-2)/l0) for li in range(self.N_sys/2)]
 
-        return np.arange(self.N_sys/2), rl
+        return arange(self.N_sys/2), rl
     
     def correlation_length(self,mu,kT):
         from numpy import sqrt,log
         """
-        Output is the bond-bond correlation length of the system
+        Bond-bond correlation length of the system
         """
         K_s,K_m,K_t=self.get_weights(mu,kT)
         
@@ -127,10 +138,3 @@ class MOF_lattice:
         
         eps_length=-1.0/log(eval_1/eval_0)
         return eps_length
-
-    def get_loading_data(self,mu_list,temp_list):
-        """
-        Returns an array with the loading for a given array of chemical potential and reduced temperatures.
-        """
-        rho=[self.loading(mu,temp)for mu,temp in zip(mu_list,temp_list)]
-        return rho
