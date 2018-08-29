@@ -162,20 +162,21 @@ class MOF:
         self.n_statepoints=int(self.isotherm[0])
         self.state_step=float(self.isotherm[1])
         
-        self.kb=self.bind.get_values('k_b')
-        self.E_b1=self.bind.get_values('E_b1')
-        self.E_b2=self.bind.get_values('E_b2')
-        self.E_s=self.bind.get_values('E_s')
-        self.E_m=self.bind.get_values('E_m')
-        self.E_t=self.bind.get_values('E_t')
+        self.kb=float(*self.bind.get_values('k_b')[0])
+        self.E_b1=float(*self.bind.get_values('E_b1')[0])
+        self.E_b2=float(*self.bind.get_values('E_b2')[0])
+        self.E_s=float(*self.bind.get_values('E_s')[0])
+        self.E_m=float(*self.bind.get_values('E_m')[0])
+        self.E_t=float(*self.bind.get_values('E_t')[0])
 
         self.rho=MOF_data(self.npart/self.length)
         self.path_mu()
 
     def path_mu(self):
-        from numpy import arange
+        from numpy import arange,array
         self.mu=[i*self.state_step+self._mu for i in arange(1,self.n_statepoints+1)]
         self.mu+=[self.mu[-2]-i*self.state_step for i in arange(self.n_statepoints)]
+        self.mu=array(self.mu)
 
 class MOF_data:
     """
