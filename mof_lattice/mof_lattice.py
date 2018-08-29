@@ -1,12 +1,15 @@
+"""
+modified John's class
+"""
 class MOF_lattice:
     """
     MOF class
     """
-    del_k_m=0.0001
-    del_k_s=0.0001
-    del_k_t=0.0001
-    def __init__(self,N_sys,E_s,E_m,E_t):
-        self.N_sys=N_sys
+    del_k_m=1e-4
+    del_k_s=1e-4
+    del_k_t=1e-4
+    def __init__(self,N_all,E_s,E_m,E_t):
+        self.N_all=N_all
         self.E_s=E_s
         self.E_m=E_m
         self.E_t=E_t
@@ -38,7 +41,7 @@ class MOF_lattice:
         """
         Returns the total uptake or loading at a given reduced chemical potential and reduced temperature.
         """
-        a=array([*self.get_weights(mu,kT)+(self.N_sys,)])
+        a=array([*self.get_weights(mu,kT)+(self.N_all,)])
         s=a+[self.del_k_s,.0,.0,0]
         m=a+[0.,self.del_k_s,.0,0]
         t=a+[0.,0.,self.del_k_s,0]
@@ -71,7 +74,7 @@ class MOF_lattice:
         """
         F/KT - Dimensionless
         """
-        return kT*self.N_sys*self.logpartition_function(*get_weights(mu,kT)+(self.N_sys,))
+        return kT*self.N_all*self.logpartition_function(*get_weights(mu,kT)+(self.N_all,))
 
     def hessian(self,mu,kT):
         from numpy import zeros
@@ -120,10 +123,10 @@ class MOF_lattice:
         rho_s,rho_m,rho_t=self.loading_species(mu,kT)
 
         l0=-1.0/log((2.0*rho_m)/(rho_t+(2.0*rho_m)))
-        rl=zeros(self.N_sys/2)
-        rl=[(rho_t/(rho_t+(2.0*rho_m)))*exp(-(li-2)/l0) for li in range(self.N_sys/2)]
+        rl=zeros(self.N_all/2)
+        rl=[(rho_t/(rho_t+(2.0*rho_m)))*exp(-(li-2)/l0) for li in range(self.N_all/2)]
 
-        return arange(self.N_sys/2), rl
+        return arange(self.N_all/2), rl
     
     def correlation_length(self,mu,kT):
         from numpy import sqrt,log
@@ -138,3 +141,53 @@ class MOF_lattice:
         
         eps_length=-1.0/log(eval_1/eval_0)
         return eps_length
+
+class MOF:
+    """
+    MOF class
+    """
+    def __init__(self,folder="./"):
+        from myutils import configuration
+        from numpy import loadtxt
+        self.npart=loadtxt(folder+"npart.dat")
+        self.param=configuration([folder+"param.dat"],delimiter='\t')
+        self.bind=configuration([folder+"binding_constants.dat"],delimiter='\t')
+
+        self.length=float(*self.param.get_values('length')[0])
+        self.temperature=float(*self.param.get_values('temp')[0])
+        self._mu=float(*self.param.get_values('mu')[0])
+        self.step_time=float(*self.param.get_values('t_halt')[0])
+        self.isotherm=self.param.get_values('isotherm')[0]
+
+        self.n_statepoints=int(self.isotherm[0])
+        self.state_step=float(self.isotherm[1])
+        
+        self.kb=self.bind.get_values('k_b')
+        self.E_b1=self.bind.get_values('E_b1')
+        self.E_b2=self.bind.get_values('E_b2')
+        self.E_s=self.bind.get_values('E_s')
+        self.E_m=self.bind.get_values('E_m')
+        self.E_t=self.bind.get_values('E_t')
+
+        self.rho=MOF_data(self.npart/self.length)
+        self.path_mu()
+
+    def path_mu(self):
+        from numpy import arange
+        self.mu=[i*self.state_step+self._mu for i in arange(1,self.n_statepoints+1)]
+        self.mu+=[self.mu[-2]-i*self.state_step for i in arange(self.n_statepoints)]
+
+class MOF_data:
+    """
+    MOF data class 
+    """
+    def __init__(self,data):
+        self.mean=[]
+        self.max=[]
+        self.min=[]
+        self.var=[]
+        for x in data:
+            self.mean+=[x.mean()]
+            self.max+=[x.max()]
+            self.min+=[x.min()]
+            self.var+=[x.var()]
