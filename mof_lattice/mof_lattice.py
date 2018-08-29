@@ -155,12 +155,21 @@ class MOF:
 
         self.length=float(*self.param.get_values('length')[0])
         self.temperature=float(*self.param.get_values('temp')[0])
-        self._mu=float(*self.param.get_values('mu')[0])
+        self.mu=float(*self.param.get_values('mu')[0])
         self.step_time=float(*self.param.get_values('t_halt')[0])
-        self.isotherm=self.param.get_values('isotherm')[0]
 
-        self.n_statepoints=int(self.isotherm[0])
-        self.state_step=float(self.isotherm[1])
+        try:
+            self.isotherm=self.param.get_values('isotherm')[0]
+            self.n_statepoints=int(self.isotherm[0])
+            self.state_step=float(self.isotherm[1])
+            self.path_mu()
+        except IndexError:
+            self.isobar=self.param.get_values('isobar')[0]
+            self.n_statepoints=int(self.isobar[0])
+            self.state_step=float(self.isobar[1])
+            self.mu=float(self.isobar[2])
+            self.path_temp()
+            pass
         
         self.kb=float(*self.bind.get_values('k_b')[0])
         self.E_b1=float(*self.bind.get_values('E_b1')[0])
@@ -170,13 +179,18 @@ class MOF:
         self.E_t=float(*self.bind.get_values('E_t')[0])
 
         self.rho=MOF_data(self.npart/self.length)
-        self.path_mu()
 
     def path_mu(self):
         from numpy import arange,array
-        self.mu=[i*self.state_step+self._mu for i in arange(1,self.n_statepoints+1)]
-        self.mu+=[self.mu[-2]-i*self.state_step for i in arange(self.n_statepoints)]
-        self.mu=array(self.mu)
+        self.path=[i*self.state_step+self._mu for i in arange(1,self.n_statepoints+1)]
+        self.path+=[self.path[-2]-i*self.state_step for i in arange(self.n_statepoints)]
+        self.path=array(self.path)
+
+    def path_temp(self):
+        from numpy import arange,array
+        self.path=[i*self.state_step+self.temperature for i in arange(1,self.n_statepoints+1)]
+        self.path+=[self.path[-2]-i*self.state_step for i in arange(self.n_statepoints)]
+        self.path=array(self.path)
 
 class MOF_data:
     """
