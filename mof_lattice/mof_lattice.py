@@ -146,9 +146,10 @@ class MOF:
     """
     MOF class
     """
-    def __init__(self,folder="./"):
+    def __init__(self,folder="."):
         from myutils import configuration
         from numpy import loadtxt
+        folder+="/"
         self.npart=loadtxt(folder+"npart.dat")
         self.param=configuration([folder+"param.dat"],delimiter='\t')
         self.bind=configuration([folder+"binding_constants.dat"],delimiter='\t')
