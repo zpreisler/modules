@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 class data:
     """
-    Data class
+    Data class -- perform elementary data analysis
     """
     def __init__(self,name,binary=True):
         from numpy import fromfile,loadtxt
@@ -52,7 +52,7 @@ class configuration():
     """
     Configuration class
     """
-    def __init__(self,files,delimiter=':'):
+    def __init__(self,files,delimiter=[':']):
         """
         Initialize dictionary
         """
@@ -62,12 +62,14 @@ class configuration():
             try:
                 for line in open(name,"r"):
                     t=line.split('#',1)[0]
-                    s=t.find(delimiter)
-                    if s is -1:
-                        s=t.find(' ')
+                    for dd in delimiter:
+                        s=t.find(dd)
+                        if s is not -1:
+                            break
                     a,b=line[:s],line[s+1:]
                     t=b.split()
                     if s is not -1:
+                        a=a.replace('\t','')
                         d[a]=t
                 self.conf[name]=d
             except FileNotFoundError:
