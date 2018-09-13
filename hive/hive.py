@@ -46,7 +46,7 @@ class hive:
     def __read_attr__(self,name,a):
         from numpy import fromfile,append
         attr=self.__name_attr__(a)
-        p=fromfile(name+a,dtype='float32')
+        p=fromfile(name+a)
         q=getattr(self,attr)
         offset=int(len(p)/3)
         setattr(self,attr,append(q,p[offset:]))
