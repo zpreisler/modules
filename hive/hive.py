@@ -22,6 +22,7 @@ class hive:
         self.__get_attr__()
 
         self.__get_length__()
+        print("size:",self.length)
         #self.save_h5py()
 
     def __get_length__(self):
@@ -48,7 +49,7 @@ class hive:
         attr=self.__name_attr__(a)
         p=fromfile(name+a)
         q=getattr(self,attr)
-        offset=int(len(p)/3)
+        offset=int(len(p)/2)
         setattr(self,attr,append(q,p[offset:]))
 
     def save_h5py(self,name='data.h5'):
