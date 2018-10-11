@@ -76,6 +76,20 @@ class configuration():
                 print('File "%s" not found'%name)
                 pass
 
+        self.__dconf__()
+    
+    def __dconf__(self):
+        self.dconf=[]
+        for d in self.conf.values():
+            self.dconf+=[d]
+
+    def dsort(self,key=lambda x: float(*x['epsilon'])):
+        try:
+            self.dconf=sorted(self.dconf,key=key)
+        except KeyError as error:
+            print("KeyError: %s"%error)
+            pass
+
     def __get_values(self,key,value,l):
         if isinstance(value,dict):
             k=value.get(key,None)

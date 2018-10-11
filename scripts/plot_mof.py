@@ -19,7 +19,14 @@ def main():
 
     ax1.plot(mu,rho,'g-',linewidth=1.0)
 
-    errorbar(f.path,f.rho.mean,yerr=sqrt(f.rho.var),linewidth=1.00,elinewidth=6.00,ecolor="y",barsabove=True,color="r",alpha=0.66)
+    errorbar(f.path,f.rho.mean,yerr=sqrt(f.rho.var),
+            linewidth=1.00,
+            elinewidth=6.00,
+            ecolor="y",
+            barsabove=True,
+            color="r",
+            alpha=0.66)
+
     ax1.vlines(f.path,ymin=f.rho.min,ymax=f.rho.max,linewidth=0.66,alpha=1.0)
     ax1.plot(f.path,f.rho.mean,"ro",markersize=1.0,alpha=0.66)
     xlabel(r"$\mu$")
