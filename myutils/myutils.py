@@ -52,7 +52,7 @@ class configuration():
     """
     Configuration class
     """
-    def __init__(self,files,delimiter=[':']):
+    def __init__(self,files,add_data=[],delimiter=[':']):
         """
         Initialize dictionary
         """
@@ -71,12 +71,26 @@ class configuration():
                     if s is not -1:
                         a=a.replace('\t','')
                         d[a]=t
+                self.__get_path__(d,name)
                 self.conf[name]=d
+
             except FileNotFoundError:
                 print('File "%s" not found'%name)
                 pass
 
         self.__dconf__()
+        self.__add_data__(add_data)
+
+    def __add_data__(self,d):
+        for n in d:
+            self.data(n)
+
+    @staticmethod
+    def __get_path__(d,name):
+        d['path']=''
+        end=name.rfind('/')
+        if end is not -1:
+            d['path']=[name[:end+1]]
     
     def __dconf__(self):
         self.dconf=[]
@@ -164,7 +178,7 @@ class configuration():
         """
         from numpy import fromfile
         for d in self.conf.values():
-            name=''.join(d.get('name')+[c])
+            name=''.join(d['path']+d['name']+[c])
             d[c]=data(name)
 
     def data_key(self,c,binary=False):
