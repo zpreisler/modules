@@ -1,17 +1,13 @@
-#!/usr/bin/env python
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 import tensorflow as tf
 def coord2d(inputs,name=None):
-    import tensorflow as tf
     def zrange(dim):
-        import tensorflow as tf
         x=tf.range(dim)/(dim-1)
         return (x*2)-1.0
     
     def xlayer(shape):
-        import tensorflow as tf
         x=zrange(shape[1])
         x=tf.expand_dims(x,0)
         x=tf.expand_dims(x,0)
@@ -20,7 +16,6 @@ def coord2d(inputs,name=None):
         return x
 
     def ylayer(shape):
-        import tensorflow as tf
         y=zrange(shape[2])
         y=tf.reshape(y,(shape[2],1))
         y=tf.expand_dims(y,0)
