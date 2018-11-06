@@ -77,27 +77,38 @@ class MOF_lattice:
         return kT*self.N_all*self.logpartition_function(*get_weights(mu,kT)+(self.N_all,))
 
     def hessian(self,mu,kT):
-        from numpy import zeros
+        from numpy import zeros,array
+        from numpy import linalg as LA
         """
         Returns the Hessian matrix at a given reduced chemical potential and reduced temperature.
         """
-        rho_s,rho_m,rho_t=self.loading_species(mu,kT)
+        _rho=array(self.loading_species(mu,kT))
 
         hess_mat=zeros((3,3))
+        w=[]
 
-        hess_mat[0,0]=(1.0/rho_s) + (1.0/(1.0-rho_s-rho_m-rho_t))
-        hess_mat[1,0]=(1.0/(1.0-rho_s-rho_m-rho_t))
-        hess_mat[2,0]=(1.0/(1.0-rho_s-rho_m-rho_t))
+        for rho in _rho.transpose():
+            rho_s,rho_m,rho_t=rho
 
-        hess_mat[0,1]=(1.0/(1.0-rho_s-rho_m-rho_t))
-        hess_mat[1,1]=(-1.0/(1-rho_m-(0.5*rho_t))) - (1.0/(rho_m+(0.50*rho_t))) + (1.0/rho_m)  + (1.0/(1.0-rho_s-rho_m-rho_t)) 
-        hess_mat[2,1]=(-0.5/(1-rho_m-(0.5*rho_t))) - (0.5/(rho_m+(0.50*rho_t)))                + (1.0/(1.0-rho_s-rho_m-rho_t)) 
+            hess_mat[0,0]=(1.0/rho_s) + (1.0/(1.0-rho_s-rho_m-rho_t))
+            hess_mat[1,0]=(1.0/(1.0-rho_s-rho_m-rho_t))
+            hess_mat[2,0]=(1.0/(1.0-rho_s-rho_m-rho_t))
 
-        hess_mat[0,2]=(1.0/(1.0-rho_s-rho_m-rho_t))
-        hess_mat[1,2]=(-0.5/(1-rho_m-(0.5*rho_t))) - (0.5/(rho_m+(0.50*rho_t)))                 + (1.0/(1.0-rho_s-rho_m-rho_t)) 
-        hess_mat[2,2]=(-0.25/(1-rho_m-(0.5*rho_t))) - (0.25/(rho_m+(0.50*rho_t))) + (1.0/rho_t) + (1.0/(1.0-rho_s-rho_m-rho_t)) 
+            hess_mat[0,1]=(1.0/(1.0-rho_s-rho_m-rho_t))
+            hess_mat[1,1]=(-1.0/(1-rho_m-(0.5*rho_t))) - (1.0/(rho_m+(0.50*rho_t))) + (1.0/rho_m)  + (1.0/(1.0-rho_s-rho_m-rho_t)) 
+            hess_mat[2,1]=(-0.5/(1-rho_m-(0.5*rho_t))) - (0.5/(rho_m+(0.50*rho_t)))                + (1.0/(1.0-rho_s-rho_m-rho_t)) 
 
-        return hess_mat
+            hess_mat[0,2]=(1.0/(1.0-rho_s-rho_m-rho_t))
+            hess_mat[1,2]=(-0.5/(1-rho_m-(0.5*rho_t))) - (0.5/(rho_m+(0.50*rho_t)))                 + (1.0/(1.0-rho_s-rho_m-rho_t)) 
+            hess_mat[2,2]=(-0.25/(1-rho_m-(0.5*rho_t))) - (0.25/(rho_m+(0.50*rho_t))) + (1.0/rho_t) + (1.0/(1.0-rho_s-rho_m-rho_t)) 
+
+            ww,v=LA.eig(hess_mat)
+
+            print(ww,max(ww))
+
+            w+=[max(ww)]
+
+        return array(w)
 
     def free_energy_inf_app(self,mu,kT):
         from numpy import log
