@@ -104,9 +104,7 @@ class MOF_lattice:
 
             ww,v=LA.eig(hess_mat)
 
-            print(ww,max(ww))
-
-            w+=[max(ww)]
+            w+=[min(ww)]
 
         return array(w)
 
