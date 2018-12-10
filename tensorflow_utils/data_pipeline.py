@@ -2,7 +2,7 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 import tensorflow as tf
-def get_labels_from_filenames(files,d={'h':1,'s':2,'x':3}):
+def get_labels_from_filenames(files,d={'h':1,'s':2,'x':3,'f':4}):
     from numpy import array
     labels=[]
     for f in files:
@@ -16,11 +16,9 @@ def parse(dataset):
     image_string=tf.read_file(f)
     image_decoded=tf.image.decode_png(image_string,1)
     image_cropped=tf.image.central_crop(image_decoded,0.5)
-    image_resized=tf.image.resize_images(image_cropped,[128,128])
+    image_resized=tf.image.resize_images(image_cropped,[64,64])
 
-    images=image_resized
-    #images=tf.expand_dims(images,0)
-    #images=tf.manip.tile(images,[10,1,1,1])
+    images=1.0-image_resized/255.0
     dataset['images']=images
 
     return dataset
@@ -32,7 +30,7 @@ def image_pipeline(train_data,eval_data=None,batch_size=1):
 
     train_image_dataset=tf.data.Dataset.from_tensor_slices(train_data)
     train_dataset=train_image_dataset.map(parse)
-    train_dataset=train_dataset.repeat(100).shuffle(len(train_data['images'])).batch(batch_size)
+    train_dataset=train_dataset.repeat().shuffle(len(train_data['images'])).batch(batch_size)
 
     iterator=tf.data.Iterator.from_string_handle(
             handle,
@@ -48,11 +46,3 @@ def image_pipeline(train_data,eval_data=None,batch_size=1):
         evaluation_iterator=eval_dataset.make_initializable_iterator()
 
     return handle,next_element,training_iterator,evaluation_iterator
-
-    #iterator=tf.data.Iterator.from_structure(
-    #        dataset.output_types,
-    #        dataset.output_shapes)
-    #next_element=iterator.get_next()
-    #init_train_op=iterator.make_initializer(dataset)
-
-    #return next_element,init_train_op

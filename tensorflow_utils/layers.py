@@ -8,6 +8,7 @@ class discriminator:
         print('Initialize {}'.format(name))
         
         self.rate=tf.placeholder(tf.float64)
+        self.noise=tf.placeholder(tf.float32)
         self.inputs=inputs
         self.coord=coord2d((inputs/255.0*-2.0)+1.0,name='coord2d')
 
@@ -28,10 +29,15 @@ class discriminator:
                 inputs=self.dense_output,
                 units=10)
         self.labels=tf.one_hot(labels,10)
+        self.labels_with_noise=self.labels+tf.abs(tf.random_normal(shape=tf.shape(self.labels),mean=0.0,stddev=self.noise))
+        t=tf.reduce_sum(self.labels_with_noise,1)
+        t=tf.expand_dims(t,1)
+        self.labels_with_noise/=t
         self.softmax=tf.nn.softmax(self.logits)
         self.loss=tf.reduce_mean(
                 tf.nn.softmax_cross_entropy_with_logits_v2(
-                    labels=self.labels,
+                    labels=self.labels_with_noise,
+                    #labels=self.labels,
                     logits=self.logits
                     )
                 )
